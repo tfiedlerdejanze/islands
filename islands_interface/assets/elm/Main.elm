@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (Html, text, div, h1, h2, ul, li, a)
 import Html.Attributes exposing (class, href, style, classList)
 import Html.Events exposing (onWithOptions, defaultOptions)
+import Components.Game as Game
 import Json.Decode
 import Navigation
 import Router exposing (Route(..))
@@ -12,13 +13,15 @@ import Router exposing (Route(..))
 
 
 type alias Model =
-    { currentView : Router.Route
+    { gameModel : Game.Model
+    , currentView : Router.Route
     }
 
 
 initialModel : Router.Route -> Model
 initialModel route =
-    { currentView = route
+    { gameModel = Game.initialModel
+    , currentView = route
     }
 
 
@@ -39,13 +42,21 @@ init location =
 
 
 type Msg
-    = NewLocation Navigation.Location
+    = GameMsg Game.Msg
+    | NewLocation Navigation.Location
     | NewRoute Router.Route
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        GameMsg gameMsg ->
+            let
+                ( updatedModel, cmd ) =
+                    Game.update gameMsg model.gameModel
+            in
+                ( { model | gameModel = updatedModel }, Cmd.map GameMsg cmd )
+
         NewLocation location ->
             let
                 newRoute =
@@ -96,6 +107,7 @@ header current_view =
     div [ class "header" ]
         [ ul [ class "navigation" ]
             [ li [] [ a (onClickPage Home current_view) [ text "Home" ] ]
+            , li [] [ a (onClickPage Game current_view) [ text "Board" ] ]
             ]
         ]
 
@@ -105,11 +117,19 @@ welcomeView =
     h2 [] [ text "Welcome to _!" ]
 
 
+gameView : Game.Model -> Html Msg
+gameView model =
+    Html.map GameMsg (Game.view model)
+
+
 pageView : Model -> Html Msg
 pageView model =
     case model.currentView of
         Home ->
             welcomeView
+
+        Game ->
+            gameView model.gameModel
 
 
 view : Model -> Html Msg

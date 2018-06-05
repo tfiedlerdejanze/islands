@@ -5757,6 +5757,86 @@ var _elm_lang$core$Platform$Task = {ctor: 'Task'};
 var _elm_lang$core$Platform$ProcessId = {ctor: 'ProcessId'};
 var _elm_lang$core$Platform$Router = {ctor: 'Router'};
 
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode = _elm_lang$core$Json_Decode$succeed;
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$resolve = _elm_lang$core$Json_Decode$andThen(_elm_lang$core$Basics$identity);
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom = _elm_lang$core$Json_Decode$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded = function (_p0) {
+	return _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom(
+		_elm_lang$core$Json_Decode$succeed(_p0));
+};
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return _elm_lang$core$Json_Decode$oneOf(
+				{
+					ctor: '::',
+					_0: decoder,
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Json_Decode$null(fallback),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		var handleResult = function (input) {
+			var _p1 = A2(_elm_lang$core$Json_Decode$decodeValue, pathDecoder, input);
+			if (_p1.ctor === 'Ok') {
+				var _p2 = A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					nullOr(valDecoder),
+					_p1._0);
+				if (_p2.ctor === 'Ok') {
+					return _elm_lang$core$Json_Decode$succeed(_p2._0);
+				} else {
+					return _elm_lang$core$Json_Decode$fail(_p2._0);
+				}
+			} else {
+				return _elm_lang$core$Json_Decode$succeed(fallback);
+			}
+		};
+		return A2(_elm_lang$core$Json_Decode$andThen, handleResult, _elm_lang$core$Json_Decode$value);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalAt = F4(
+	function (path, valDecoder, fallback, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
+				A2(_elm_lang$core$Json_Decode$at, path, _elm_lang$core$Json_Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optionalDecoder,
+				A2(_elm_lang$core$Json_Decode$field, key, _elm_lang$core$Json_Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A2(_elm_lang$core$Json_Decode$at, path, valDecoder),
+			decoder);
+	});
+var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required = F3(
+	function (key, valDecoder, decoder) {
+		return A2(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$custom,
+			A2(_elm_lang$core$Json_Decode$field, key, valDecoder),
+			decoder);
+	});
+
 var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
 var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
 var _elm_lang$core$Task$spawnCmd = F2(
@@ -9876,16 +9956,64 @@ var _evancz$url_parser$UrlParser$intParam = function (name) {
 	return A2(_evancz$url_parser$UrlParser$customParam, name, _evancz$url_parser$UrlParser$intParamHelp);
 };
 
+var _user$project$Components_Game$view = function (model) {
+	var _p0 = model.game_data;
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h2,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Game'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Loading'),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Components_Game$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		return A2(
+			_elm_lang$core$Platform_Cmd_ops['!'],
+			model,
+			{ctor: '[]'});
+	});
+var _user$project$Components_Game$initialModel = {game_data: ''};
+var _user$project$Components_Game$Model = function (a) {
+	return {game_data: a};
+};
+var _user$project$Components_Game$NoOp = {ctor: 'NoOp'};
+
 var _user$project$Router$routeToUrl = function (route) {
 	var _p0 = route;
-	return '/';
+	if (_p0.ctor === 'Home') {
+		return '/';
+	} else {
+		return '/game';
+	}
 };
+var _user$project$Router$Game = {ctor: 'Game'};
 var _user$project$Router$Home = {ctor: 'Home'};
 var _user$project$Router$matchers = _evancz$url_parser$UrlParser$oneOf(
 	{
 		ctor: '::',
 		_0: A2(_evancz$url_parser$UrlParser$map, _user$project$Router$Home, _evancz$url_parser$UrlParser$top),
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_evancz$url_parser$UrlParser$map,
+				_user$project$Router$Game,
+				_evancz$url_parser$UrlParser$s('game')),
+			_1: {ctor: '[]'}
+		}
 	});
 var _user$project$Router$parseLocation = function (location) {
 	var _p1 = A2(_evancz$url_parser$UrlParser$parsePath, _user$project$Router$matchers, location);
@@ -9904,10 +10032,6 @@ var _user$project$Main$welcomeView = A2(
 		_0: _elm_lang$html$Html$text('Welcome to _!'),
 		_1: {ctor: '[]'}
 	});
-var _user$project$Main$pageView = function (model) {
-	var _p0 = model.currentView;
-	return _user$project$Main$welcomeView;
-};
 var _user$project$Main$onPreventDefaultClick = function (message) {
 	return A3(
 		_elm_lang$html$Html_Events$onWithOptions,
@@ -9920,39 +10044,13 @@ var _user$project$Main$onPreventDefaultClick = function (message) {
 var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		if (_p1.ctor === 'NewLocation') {
-			var newRoute = _user$project$Router$parseLocation(_p1._0);
-			var _p2 = newRoute;
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				_elm_lang$core$Native_Utils.update(
-					model,
-					{currentView: newRoute}),
-				{ctor: '[]'});
-		} else {
-			var _p3 = _p1._0;
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				_elm_lang$core$Native_Utils.update(
-					model,
-					{currentView: _p3}),
-				{
-					ctor: '::',
-					_0: _elm_lang$navigation$Navigation$modifyUrl(
-						_user$project$Router$routeToUrl(_p3)),
-					_1: {ctor: '[]'}
-				});
-		}
-	});
 var _user$project$Main$initialModel = function (route) {
-	return {currentView: route};
+	return {gameModel: _user$project$Components_Game$initialModel, currentView: route};
 };
-var _user$project$Main$Model = function (a) {
-	return {currentView: a};
-};
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {gameModel: a, currentView: b};
+	});
 var _user$project$Main$NewRoute = function (a) {
 	return {ctor: 'NewRoute', _0: a};
 };
@@ -10018,10 +10116,97 @@ var _user$project$Main$header = function (current_view) {
 								}),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$li,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$a,
+									A2(_user$project$Main$onClickPage, _user$project$Router$Game, current_view),
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Board'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}),
 			_1: {ctor: '[]'}
 		});
+};
+var _user$project$Main$NewLocation = function (a) {
+	return {ctor: 'NewLocation', _0: a};
+};
+var _user$project$Main$GameMsg = function (a) {
+	return {ctor: 'GameMsg', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'GameMsg':
+				var _p1 = A2(_user$project$Components_Game$update, _p0._0, model.gameModel);
+				var updatedModel = _p1._0;
+				var cmd = _p1._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{gameModel: updatedModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$GameMsg, cmd)
+				};
+			case 'NewLocation':
+				var newRoute = _user$project$Router$parseLocation(_p0._0);
+				var _p2 = newRoute;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{currentView: newRoute}),
+					{ctor: '[]'});
+			default:
+				var _p3 = _p0._0;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{currentView: _p3}),
+					{
+						ctor: '::',
+						_0: _elm_lang$navigation$Navigation$modifyUrl(
+							_user$project$Router$routeToUrl(_p3)),
+						_1: {ctor: '[]'}
+					});
+		}
+	});
+var _user$project$Main$init = function (location) {
+	var currentRoute = _user$project$Router$parseLocation(location);
+	var _p4 = A2(
+		_user$project$Main$update,
+		_user$project$Main$NewLocation(location),
+		_user$project$Main$initialModel(currentRoute));
+	var model = _p4._0;
+	var cmds = _p4._1;
+	return {ctor: '_Tuple2', _0: model, _1: cmds};
+};
+var _user$project$Main$gameView = function (model) {
+	return A2(
+		_elm_lang$html$Html$map,
+		_user$project$Main$GameMsg,
+		_user$project$Components_Game$view(model));
+};
+var _user$project$Main$pageView = function (model) {
+	var _p5 = model.currentView;
+	if (_p5.ctor === 'Home') {
+		return _user$project$Main$welcomeView;
+	} else {
+		return _user$project$Main$gameView(model.gameModel);
+	}
 };
 var _user$project$Main$view = function (model) {
 	return A2(
@@ -10047,19 +10232,6 @@ var _user$project$Main$view = function (model) {
 				_1: {ctor: '[]'}
 			}
 		});
-};
-var _user$project$Main$NewLocation = function (a) {
-	return {ctor: 'NewLocation', _0: a};
-};
-var _user$project$Main$init = function (location) {
-	var currentRoute = _user$project$Router$parseLocation(location);
-	var _p4 = A2(
-		_user$project$Main$update,
-		_user$project$Main$NewLocation(location),
-		_user$project$Main$initialModel(currentRoute));
-	var model = _p4._0;
-	var cmds = _p4._1;
-	return {ctor: '_Tuple2', _0: model, _1: cmds};
 };
 var _user$project$Main$main = A2(
 	_elm_lang$navigation$Navigation$program,

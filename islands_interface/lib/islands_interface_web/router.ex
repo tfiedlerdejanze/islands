@@ -17,6 +17,7 @@ defmodule IslandsInterfaceWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/:elmview", PageController, :index
 
     post "/start", GameController, :start_game
   end

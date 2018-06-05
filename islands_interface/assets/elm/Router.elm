@@ -6,12 +6,14 @@ import UrlParser exposing (..)
 
 type Route
     = Home
+    | Game
 
 
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
         [ map Home top
+        , map Game (s "game")
         ]
 
 
@@ -30,3 +32,6 @@ routeToUrl route =
     case route of
         Home ->
             "/"
+
+        Game ->
+            "/game"
