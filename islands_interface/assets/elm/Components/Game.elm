@@ -1,7 +1,7 @@
 module Components.Game exposing (..)
 
 import Html exposing (Html, text, ul, li, div, h2, button, section)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, style)
 import List
 import Json.Decode as Json
 import Json.Decode.Pipeline exposing (decode, required)
@@ -10,13 +10,48 @@ import Json.Decode.Pipeline exposing (decode, required)
 -- MODEL
 
 
+type alias Coord =
+    ( Int, Int )
+
+
+type alias Board =
+    List Coord
+
+
 type alias Model =
-    { game_data : String }
+    { board : Board }
+
+
+squareSize =
+    64
+
+
+tile : Int -> Int -> Html Msg
+tile xPos yPos =
+    div
+        [ class ("cell cell-" ++ (toString xPos) ++ "-" ++ (toString yPos))
+        ]
+        [ div [ class "inner" ] [ text ((toString xPos) ++ "-" ++ (toString yPos)) ] ]
+
+
+renderRow x =
+    List.map
+        (tile x)
+        (List.range 1 10)
+
+
+row x =
+    div [ class "row" ] (renderRow x)
+
+
+initialBoard : Board
+initialBoard =
+    [ ( 0, 0 ) ]
 
 
 initialModel : Model
 initialModel =
-    { game_data = "" }
+    { board = initialBoard }
 
 
 
@@ -38,14 +73,15 @@ update msg model =
 -- VIEW
 
 
+renderBlankBoard =
+    List.map row (List.range 1 10)
+
+
 view : Model -> Html Msg
 view model =
-    case model.game_data of
+    case model.board of
         _ ->
-            div []
-                [ h2 [] [ text "Game" ]
-                , text "Loading"
-                ]
+            div [ class "grid" ] renderBlankBoard
 
 
 

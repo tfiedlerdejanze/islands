@@ -29,10 +29,7 @@ h6 {
 button,
 li,
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", "Avenir",
-        "Segoe UI", "Lucida Grande", "Helvetica Neue", "Helvetica", "Fira Sans",
-        "Roboto", "Noto", "Droid Sans", "Cantarell", "Oxygen", "Ubuntu",
-        "Franklin Gothic Medium", "Century Gothic", "Liberation Sans", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", "Avenir", "Segoe UI", "Lucida Grande", "Helvetica Neue", "Helvetica", "Fira Sans", "Roboto", "Noto", "Droid Sans", "Cantarell", "Oxygen", "Ubuntu", "Franklin Gothic Medium", "Century Gothic", "Liberation Sans", sans-serif;
 }
 
 a {
@@ -59,11 +56,35 @@ a {
     margin-right: 10px;
 }
 
-.rover-filter {
-    text-align: right;
-    .button__hollow {
-        margin-right: 10px;
-    }
+.row {
+    display: flex;
+}
+
+.cell {
+    background: tomato;
+    margin: 2px;
+    color: white;
+    font-weight: bold;
+    flex: 1 0 auto;
+    position: relative;
+}
+
+.cell:after {
+    content: "";
+    float: left;
+    display: block;
+    padding-top: 100%;
+}
+
+.cell .inner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .filter__display {
@@ -122,6 +143,7 @@ a {
 .button__hollow.active {
     border-color: #666666;
 }
+
 .header {
     padding: 20px 20px 0;
 }

@@ -9956,39 +9956,97 @@ var _evancz$url_parser$UrlParser$intParam = function (name) {
 	return A2(_evancz$url_parser$UrlParser$customParam, name, _evancz$url_parser$UrlParser$intParamHelp);
 };
 
-var _user$project$Components_Game$view = function (model) {
-	var _p0 = model.game_data;
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$h2,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Game'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Loading'),
-				_1: {ctor: '[]'}
-			}
-		});
-};
 var _user$project$Components_Game$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
+		var _p0 = msg;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			model,
 			{ctor: '[]'});
 	});
-var _user$project$Components_Game$initialModel = {game_data: ''};
+var _user$project$Components_Game$initialBoard = {
+	ctor: '::',
+	_0: {ctor: '_Tuple2', _0: 0, _1: 0},
+	_1: {ctor: '[]'}
+};
+var _user$project$Components_Game$initialModel = {board: _user$project$Components_Game$initialBoard};
+var _user$project$Components_Game$tile = F2(
+	function (xPos, yPos) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'cell cell-',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(xPos),
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'-',
+								_elm_lang$core$Basics$toString(yPos))))),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('inner'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								_elm_lang$core$Basics$toString(xPos),
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'-',
+									_elm_lang$core$Basics$toString(yPos)))),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Components_Game$renderRow = function (x) {
+	return A2(
+		_elm_lang$core$List$map,
+		_user$project$Components_Game$tile(x),
+		A2(_elm_lang$core$List$range, 1, 10));
+};
+var _user$project$Components_Game$row = function (x) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('row'),
+			_1: {ctor: '[]'}
+		},
+		_user$project$Components_Game$renderRow(x));
+};
+var _user$project$Components_Game$renderBlankBoard = A2(
+	_elm_lang$core$List$map,
+	_user$project$Components_Game$row,
+	A2(_elm_lang$core$List$range, 1, 10));
+var _user$project$Components_Game$view = function (model) {
+	var _p1 = model.board;
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('grid'),
+			_1: {ctor: '[]'}
+		},
+		_user$project$Components_Game$renderBlankBoard);
+};
+var _user$project$Components_Game$squareSize = 64;
 var _user$project$Components_Game$Model = function (a) {
-	return {game_data: a};
+	return {board: a};
 };
 var _user$project$Components_Game$NoOp = {ctor: 'NoOp'};
 
