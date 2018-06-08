@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, h2, ul, li, a, input)
 import Html.Attributes exposing (class, href, style, classList, placeholder, type_, value)
-import Html.Events exposing (onWithOptions, defaultOptions, onInput)
+import Html.Events exposing (onWithOptions, defaultOptions, onInput, onClick)
 import Components.Game as Game
 import Json.Decode
 import Navigation
@@ -60,21 +60,31 @@ userParams name =
         user_name =
             Json.Encode.string name
     in
-        Json.Encode.object [ ( name, user_name ) ]
+        Json.Encode.object [ ( "screen_name", user_name ) ]
 
 
 
 -- UPDATE
 
 
+andThen : Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+andThen msg ( model, cmd ) =
+    let
+        ( newmodel, newcmd ) =
+            update msg model
+    in
+        newmodel ! [ cmd, newcmd ]
+
+
 type Msg
     = GameMsg Game.Msg
     | PhoenixMsg (Phoenix.Socket.Msg Msg)
     | GameName String
-    | JoinChannel
+    | JoinChannel String
     | LeaveChannel
     | ShowJoinedMessage String
     | ShowLeftMessage String
+    | CreateGame String String
     | NewLocation Navigation.Location
     | NewRoute Router.Route
 
@@ -105,15 +115,16 @@ update msg model =
                 , Cmd.map PhoenixMsg phxCmd
                 )
 
-        JoinChannel ->
+        JoinChannel name ->
             let
                 channel_name =
-                    "game:" ++ "theo"
+                    "game:" ++ name
 
                 channel =
                     Phoenix.Channel.init (channel_name)
-                        |> Phoenix.Channel.withPayload (userParams "theo")
+                        |> Phoenix.Channel.withPayload (userParams name)
                         |> Phoenix.Channel.onJoin (always (ShowJoinedMessage channel_name))
+                        |> Phoenix.Channel.onJoin (always (CreateGame channel_name name))
                         |> Phoenix.Channel.onClose (always (ShowLeftMessage channel_name))
 
                 ( phxSocket, phxCmd ) =
@@ -126,9 +137,24 @@ update msg model =
         LeaveChannel ->
             let
                 ( phxSocket, phxCmd ) =
-                    Phoenix.Socket.leave "rooms:lobby" model.phxSocket
+                    Phoenix.Socket.leave "game:lobby" model.phxSocket
             in
                 ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+        CreateGame channel player_name ->
+            let
+                push_ =
+                    Phoenix.Push.init "new_game" channel
+
+                ( phxSocket, phxCmd ) =
+                    Phoenix.Socket.push push_ model.phxSocket
+            in
+                ( { model
+                    | newMessage = ""
+                    , phxSocket = phxSocket
+                  }
                 , Cmd.map PhoenixMsg phxCmd
                 )
 
@@ -197,12 +223,12 @@ header current_view =
         ]
 
 
-welcomeView : Html Msg
-welcomeView =
+welcomeView : Model -> Html Msg
+welcomeView model =
     div []
         [ h2 [] [ text "Welcome to _!" ]
         , input [ type_ "text", placeholder "Name", onInput GameName ] []
-        , input [ type_ "button", value "Start game" ] []
+        , input [ type_ "button", value "Start game", onClick (JoinChannel model.gameModel.name) ] []
         ]
 
 
@@ -215,7 +241,7 @@ pageView : Model -> Html Msg
 pageView model =
     case model.currentView of
         Home ->
-            welcomeView
+            welcomeView model
 
         Game ->
             gameView model.gameModel
