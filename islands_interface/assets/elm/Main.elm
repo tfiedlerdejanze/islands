@@ -1,12 +1,23 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, h2, ul, li, a)
-import Html.Attributes exposing (class, href, style, classList)
-import Html.Events exposing (onWithOptions, defaultOptions)
+import Html exposing (Html, text, div, h1, h2, ul, li, a, input)
+import Html.Attributes exposing (class, href, style, classList, placeholder, type_, value)
+import Html.Events exposing (onWithOptions, defaultOptions, onInput)
 import Components.Game as Game
 import Json.Decode
 import Navigation
 import Router exposing (Route(..))
+import Phoenix.Socket
+import Phoenix.Channel
+import Phoenix.Push
+import Json.Decode
+import Json.Encode
+
+
+socketServer : String
+socketServer =
+    "ws://localhost:4000/socket/websocket"
+
 
 
 -- MODEL
@@ -14,13 +25,19 @@ import Router exposing (Route(..))
 
 type alias Model =
     { gameModel : Game.Model
+    , phxSocket : Phoenix.Socket.Socket Msg
     , currentView : Router.Route
+    , newMessage : String
+    , messages : List String
     }
 
 
 initialModel : Router.Route -> Model
 initialModel route =
     { gameModel = Game.initialModel
+    , newMessage = ""
+    , messages = []
+    , phxSocket = Phoenix.Socket.init socketServer
     , currentView = route
     }
 
@@ -37,12 +54,27 @@ init location =
         ( model, cmds )
 
 
+userParams : String -> Json.Encode.Value
+userParams name =
+    let
+        user_name =
+            Json.Encode.string name
+    in
+        Json.Encode.object [ ( name, user_name ) ]
+
+
 
 -- UPDATE
 
 
 type Msg
     = GameMsg Game.Msg
+    | PhoenixMsg (Phoenix.Socket.Msg Msg)
+    | GameName String
+    | JoinChannel
+    | LeaveChannel
+    | ShowJoinedMessage String
+    | ShowLeftMessage String
     | NewLocation Navigation.Location
     | NewRoute Router.Route
 
@@ -56,6 +88,59 @@ update msg model =
                     Game.update gameMsg model.gameModel
             in
                 ( { model | gameModel = updatedModel }, Cmd.map GameMsg cmd )
+
+        GameName name ->
+            let
+                ( updatedModel, cmd ) =
+                    Game.update (Game.Name name) model.gameModel
+            in
+                ( { model | gameModel = updatedModel }, Cmd.map GameMsg cmd )
+
+        PhoenixMsg msg ->
+            let
+                ( phxSocket, phxCmd ) =
+                    Phoenix.Socket.update msg model.phxSocket
+            in
+                ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+        JoinChannel ->
+            let
+                channel_name =
+                    "game:" ++ "theo"
+
+                channel =
+                    Phoenix.Channel.init (channel_name)
+                        |> Phoenix.Channel.withPayload (userParams "theo")
+                        |> Phoenix.Channel.onJoin (always (ShowJoinedMessage channel_name))
+                        |> Phoenix.Channel.onClose (always (ShowLeftMessage channel_name))
+
+                ( phxSocket, phxCmd ) =
+                    Phoenix.Socket.join channel model.phxSocket
+            in
+                ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+        LeaveChannel ->
+            let
+                ( phxSocket, phxCmd ) =
+                    Phoenix.Socket.leave "rooms:lobby" model.phxSocket
+            in
+                ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+        ShowJoinedMessage channelName ->
+            ( { model | messages = ("Joined channel " ++ channelName) :: model.messages }
+            , Cmd.none
+            )
+
+        ShowLeftMessage channelName ->
+            ( { model | messages = ("Left channel " ++ channelName) :: model.messages }
+            , Cmd.none
+            )
 
         NewLocation location ->
             let
@@ -72,7 +157,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg
 
 
 
@@ -114,7 +199,11 @@ header current_view =
 
 welcomeView : Html Msg
 welcomeView =
-    h2 [] [ text "Welcome to _!" ]
+    div []
+        [ h2 [] [ text "Welcome to _!" ]
+        , input [ type_ "text", placeholder "Name", onInput GameName ] []
+        , input [ type_ "button", value "Start game" ] []
+        ]
 
 
 gameView : Game.Model -> Html Msg
@@ -134,7 +223,7 @@ pageView model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ header model.currentView, div [ class "main" ] [ pageView model ] ]
+    div [] [ header model.currentView, (pageView model) ]
 
 
 
