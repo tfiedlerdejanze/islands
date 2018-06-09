@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no'>
+    <meta name='release-commit' content='<%= htmlWebpackPlugin.options.commitHash %>'>
+    <meta name='release-branch' content='<%= htmlWebpackPlugin.options.commitBranch %>'>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel='icon' href='/favicon.ico?v=1.1' />
+
+    <script type="application/javascript">
+        function detect() {
+            if (typeof navigator === 'undefined' || !navigator.userAgent) {
+                return null;
+            }
+
+            var browsers = getBrowserRules();
+            var result = null;
+
+            for (var i = 0; browsers.length > i; i++) {
+                var match = browsers[i].rule.exec(navigator.userAgent);
+                var version = match && match[1].split(/[._]/).slice(0, 3);
+                if (version && version.length < 3) {
+                    version = version.concat(version.length === 1 ? [0, 0] : [0]);
+                }
+
+                if (match) {
+                    result = {
+                        name: browsers[i].name,
+                        version: parseInt(version[0]),
+                        minVersion: browsers[i].minVersion,
+                        isOld: parseInt(version[0]) < browsers[i].minVersion
+                    };
+                    break;
+                }
+            }
+            return result;
+        }
+
+        function getBrowserRules() {
+            return [
+                {name: 'yandexbrowser', rule: /YaBrowser\/([0-9\._]+)/, minVersion: 16},
+                {name: 'vivaldi', rule: /Vivaldi\/([0-9\.]+)/, minVersion: 1},
+                {name: 'chrome', rule: /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/, minVersion: 55},
+                {name: 'firefox', rule: /Firefox\/([0-9\.]+)(?:\s|$)/, minVersion: 45},
+                {name: 'opera', rule: /Opera\/([0-9\.]+)(?:\s|$)/, minVersion: 35},
+                {name: 'opera', rule: /OPR\/([0-9\.]+)(:?\s|$)$/, minVersion: 35},
+                {name: 'edge', rule: /Edge\/([0-9\._]+)/, minVersion: 14},
+                {name: 'ie', rule: /Trident\/7\.0.*rv\:([0-9\.]+).*\).*Gecko$/, minVersion: 11},
+                {name: 'ie', rule: /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/, minVersion: 11},
+                {name: 'ie', rule: /MSIE\s(7\.0)/, minVersion: 11},
+                {name: 'bb10', rule: /BB10;\sTouch.*Version\/([0-9\.]+)/, minVersion: 10},
+                {name: 'android', rule: /Android\s([0-9\.]+)/, minVersion: 4},
+                {name: 'ios', rule: /Version\/([0-9\._]+).*Mobile.*Safari.*/, minVersion: 9},
+                {name: 'safari', rule: /Version\/([0-9\._]+).*Safari/, minVersion: 9}
+            ];
+        }
+
+        function showOldBrowserInfo() {
+            document.getElementById('old_browser_wrapper').style.display = 'block';
+
+        }
+
+        function loadContent() {
+            var browser = detect();
+
+            if (browser && browser.isOld) {
+                showOldBrowserInfo();
+            } else {
+                initApp();
+            }
+        }
+
+        function initApp() {
+            document.getElementById('pre_load_wrapper').style.display = 'block';
+            var scripts = [
+                <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+                    '<%= htmlWebpackPlugin.files.chunks[chunk].entry %>',
+                <% } %>
+            ];
+
+            for (var i = 0; scripts.length > i; i++) {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = scripts[i];
+                document.getElementsByTagName('body')[0].appendChild(script);
+            }
+        }
+
+        document.onreadystatechange = function () {
+            if (document.readyState === "interactive") {
+                loadContent();
+            }
+        }
+    </script>
+</head>
+<body>
+<div id='root'>
+
+    <div id="pre_load_wrapper" style="display: none;">
+        <div class='main-loading-spinner'></div>
+    </div>
+
+    <div id="old_browser_wrapper" style="display: none;">
+        <h1>Your Browser is outdated and not supported</h1>
+        <p>You can get a newer version at <a href="http://outdatedbrowser.com">http://outdatedbrowser.com</a>.</p>
+    </div>
+</div>
+</body>
+</html>

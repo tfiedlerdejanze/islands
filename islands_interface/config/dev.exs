@@ -11,8 +11,8 @@ config :islands_interface, IslandsInterfaceWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../assets", __DIR__)]]
+  watchers: [node: ["/Users/fiedler/.nvm/versions/node/v9.4.0/bin/npm", "run", "watch", "--stdin",
+                    cd: Path.expand("../webapp", __DIR__)]]
 
 # ## SSL Support
 #

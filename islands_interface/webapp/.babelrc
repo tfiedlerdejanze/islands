@@ -1,0 +1,28 @@
+{
+    "presets": [
+        "env", "react", "stage-0"
+    ],
+    "plugins": [
+        ["transform-runtime", {
+            "helpers": false,
+            "polyfill": false,
+            "regenerator": true
+        }]
+    ],
+
+    "env": {
+        "test": {
+            "presets": [
+                "env", "react", "stage-0"
+            ],
+            "plugins": [
+                ["dynamic-import-node",
+                "transform-runtime", {
+                    "helpers": false,
+                    "polyfill": false,
+                    "regenerator": true
+                }]
+            ]
+        }
+    }
+}

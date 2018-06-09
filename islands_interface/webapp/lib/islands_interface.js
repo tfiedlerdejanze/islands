@@ -10,6 +10,10 @@ class IslandsInterface {
         return socket.channel(`game:${subtopic}`, {screen_name: screen_name})
     }
 
+    static channelEvents(channel) {
+
+    }
+
     static join(channel) {
         channel.join()
             .receive("ok", response => {
@@ -69,7 +73,7 @@ class IslandsInterface {
             })
     }
 
-    leave(channel) {
+    static leave(channel) {
         channel.leave()
             .receive("ok", response => {
                 console.log("left successfully", response)

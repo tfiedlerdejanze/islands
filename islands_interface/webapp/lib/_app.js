@@ -18,9 +18,8 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-//import IslandsInterface from "./islands_interface"
-//
-//const islands = []
+// import IslandsInterface from "./islands_interface"
+
 //let channel = IslandsInterface.newChannel("foo", "foo")
 //IslandsInterface.join(channel)
 //IslandsInterface.newGame(channel)
@@ -36,7 +35,3 @@ import "phoenix_html"
 //
 //IslandsInterface.setIslands(channel, "player1")
 
-import Elm from './main';
-
-const elmDiv = document.getElementById("elm-main");
-Elm.Main.embed(elmDiv);
