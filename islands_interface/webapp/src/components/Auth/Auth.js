@@ -96,10 +96,10 @@ class Auth extends React.Component {
                 <form onSubmit={this.handleJoinSubmit}>
                     <h2>Join Game</h2>
                     <div>
-                        <input name="player" placeholder="name" value={joinGameName} onChange={this.handleJoinChange} />
+                        <input name="game" placeholder="game" value={joinGameName} onChange={this.handleJoinChange} />
                     </div>
                     <div>
-                        <input name="game" placeholder="game" value={joinPlayerName} onChange={this.handlePlayerJoinChange} />
+                        <input name="player" placeholder="name" value={joinPlayerName} onChange={this.handlePlayerJoinChange} />
                     </div>
                     <div>
                         <input type="submit" />

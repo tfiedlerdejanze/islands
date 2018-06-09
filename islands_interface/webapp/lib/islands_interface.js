@@ -48,30 +48,34 @@ class IslandsInterface {
             })
     }
 
-    static positionIsland(channel, player, island, row, col) {
+    static positionIsland(channel, player, island, row, col, onSuccess, onError) {
         const params = {"player": player, "island": island, "row": row, "col": col}
 
         channel.push("position_island", params)
             .receive("ok", response => {
                 console.log("Island positioned!")
+                onSuccess()
             })
             .receive("error", response => {
                 console.log("Unable to position island.", response)
+                onError()
             })
     }
 
-    static setIslands(channel, player) {
+    static setIslands(channel, player, onSuccess, onError) {
         channel.push("set_islands", player)
             .receive("ok", response => {
                 console.log("The board:")
                 console.dir(response.board)
+                onSuccess(response.board)
             })
             .receive("error", response => {
                 console.log(`Unable to set islands for player ${player}.`, response)
+                onError()
             })
     }
 
-    static positionIsland(channel, player, row, col) {
+    static guessCoordinate(channel, player, row, col) {
         const params = {"player": player, "row": row, "col": col}
 
         channel.push("guess_coordinate", params)

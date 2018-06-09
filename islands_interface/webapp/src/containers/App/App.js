@@ -39,7 +39,11 @@ class App extends React.Component {
 
     render() {
         const {
-            game_state
+            active_player,
+            game_state,
+            player1name,
+            player2name,
+            channel
         } = this.props;
 
         switch (game_state) {
@@ -51,7 +55,14 @@ class App extends React.Component {
                 break;
             case "new_game":
             case "players_set":
-                return <Board />;
+                return (
+                    <div>
+                        <div>
+                            {game_state}, {player1name} vs. {player2name}
+                        </div>
+                        <Board channel={channel} player={active_player} />
+                    </div>
+                );
                 break;
             default:
                 return <div>Loading...</div>;
@@ -61,11 +72,17 @@ class App extends React.Component {
 
 const mapStateToProps = ({
     app: {
+        active_player,
         game_state,
+        player1name,
+        player2name,
         channel
     }
 }) => ({
+    active_player,
     game_state,
+    player1name,
+    player2name,
     channel
 });
 

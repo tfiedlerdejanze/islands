@@ -31,6 +31,7 @@ export const newGame = (name) => async (dispatch) => {
 
     const startNewGame = () => {
         const appData = Object.assign({}, {
+            active_player: {name, key: "player1"},
             game_state: "new_game",
             player1name: name,
             channel: channel
@@ -48,6 +49,7 @@ export const joinGame = (channel_name, name) => async (dispatch) => {
 
     const updateAppData = () => {
         const appData = Object.assign({}, {
+            active_player: {name, key: "player2"},
             game_state: "players_set",
             player1name: channel_name,
             player2name: name,
@@ -61,16 +63,6 @@ export const joinGame = (channel_name, name) => async (dispatch) => {
     IslandsInterface.addPlayer(channel, name, updateAppData, init);
 }
 
-export const addPlayer = (channel, name) => async (dispatch) => {
-    IslandsInterface.addPlayer(channel, name);
-
-    const appData = Object.assign({}, {
-        player2name: name,
-        channel: channel
-    });
-
-    dispatch(setAppData(appData))
-}
 
 export const init = () => async (dispatch) => {
     await dispatch(fetchAppData());
