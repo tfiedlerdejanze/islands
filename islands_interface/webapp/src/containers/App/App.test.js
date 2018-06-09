@@ -2,7 +2,6 @@ import {appReducer} from './reducer';
 import {
     SET_LOADING,
     SET_APP_DATA,
-    SET_NEW_LOCALE
 } from './actionTypes';
 
 describe('<App />', () => {

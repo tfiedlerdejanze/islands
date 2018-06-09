@@ -10,10 +10,6 @@ class IslandsInterface {
         return socket.channel(`game:${subtopic}`, {screen_name: screen_name})
     }
 
-    static channelEvents(channel) {
-
-    }
-
     static join(channel) {
         channel.join()
             .receive("ok", response => {
@@ -24,19 +20,30 @@ class IslandsInterface {
             })
     }
 
-    static newGame(channel) {
+    static showSubscribers(channel) {
+        channel.push("show_subscribers")
+    }
+
+    static newGame(channel, onSuccess, onError) {
         channel.push("new_game")
             .receive("ok", response => {
                 console.log("New game!", response)
+                onSuccess()
             })
             .receive("error", response => {
                 console.log("Unable to start new game.", response)
+                onError()
             })
     }
 
-    static addPlayer(channel, player) {
+    static addPlayer(channel, player, onSuccess, onError) {
         channel.push("add_player", player)
+            .receive("ok", response => {
+                console.log("Successfully added player", response)
+                onSuccess()
+            })
             .receive("error", response => {
+                onError()
                 console.log(`Unable to add player ${player}.`, response)
             })
     }

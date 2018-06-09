@@ -25,7 +25,6 @@ defmodule IslandsInterfaceWeb.GameChannel do
 
   def handle_in("new_game", _payload, socket) do
     "game:" <> player = socket.topic
-    IO.inspect(socket)
     case GameSupervisor.start_game(player) do
       {:ok, _pid} ->
         {:reply, :ok, socket}
@@ -37,8 +36,8 @@ defmodule IslandsInterfaceWeb.GameChannel do
   def handle_in("add_player", player, socket) do
     case Game.add_player(via(socket.topic), player) do
       :ok ->
-        broadcast!(socket, "player_added", %{message: "Player joined: " <> player})
-        {:noreply, socket}
+        broadcast!(socket, "player_added", %{message: "Player joined: " <> player, player_name: player})
+        {:reply, :ok, socket}
       {:error, reason} ->
         {:reply, {:error, %{reason: inspect(reason)}}, socket}
       :error ->

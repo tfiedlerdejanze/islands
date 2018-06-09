@@ -8,7 +8,7 @@ const className = classNames({
     [s.board]: true,
 });
 
-const board = Array.from({length: 10}, (v, k) => k+1);
+const boardRange = Array.from({length: 10}, (v, k) => k+1);
 
 class Board extends React.Component {
     constructor(props) {
@@ -27,8 +27,8 @@ class Board extends React.Component {
         });
     }
 
-    renderRows() {
-        return board.map((_, x) => {
+    renderBoard() {
+        return boardRange.map((_, x) => {
             return (
                 <div key={x} className={s.row}>
                     {this.renderCells(x)}
@@ -43,7 +43,7 @@ class Board extends React.Component {
             selected
         } =  this.state;
 
-        return board.map((_, y) => {
+        return boardRange.map((_, y) => {
             const cellClass = classNames({
                 [s['cell']]: true,
                 [s['cell--selected']]: selected && (row === selected.x) && (y === selected.y)
@@ -64,7 +64,7 @@ class Board extends React.Component {
 
         return (
             <div className={className}>
-                {this.renderRows()}
+                {this.renderBoard()}
             </div>
         );
     }

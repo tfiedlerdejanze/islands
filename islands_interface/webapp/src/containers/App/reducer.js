@@ -1,11 +1,9 @@
 import {
     SET_LOADING,
-    SET_PARTNER,
     SET_APP_DATA,
-    SET_NEW_LOCALE,
 } from './actionTypes';
 
-export const appReducer = (state = {loading: false, partner: null}, action) => {
+export const appReducer = (state = {loading: false}, action) => {
     switch (action.type) {
         case SET_LOADING:
             return {
