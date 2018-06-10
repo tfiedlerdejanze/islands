@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import Board from './../../components/Board/Board';
+import OpponentBoard from './../../components/Board/OpponentBoard';
 import Auth from './../../components/Auth/Auth';
 import * as actions from './actions';
 
@@ -13,38 +14,74 @@ class App extends React.Component {
     constructor() {
         super();
 
+        this.state = {
+            message: 'Set your islands',
+            islands_set: false,
+        };
+
+        this.onSetPlayerIslands = this.onSetPlayerIslands.bind(this)
+        this.onBoardStateChange = this.onBoardStateChange.bind(this)
+        this.onSetIslands = this.onSetIslands.bind(this)
+
         this.createGameChannel = this.createGameChannel.bind(this);
         this.joinGameChannel = this.joinGameChannel.bind(this);
     }
 
-    async createGameChannel(name) {
+    createGameChannel(name) {
         const {
             actions: {
                 newGame
             }
         } = this.props;
 
-        await newGame(name);
+        newGame(name);
     }
 
-    async joinGameChannel(channel_name, name) {
+    joinGameChannel(channel_name, name) {
         const {
             actions: {
                 joinGame
             }
         } = this.props;
 
-        await joinGame(channel_name, name);
+        joinGame(channel_name, name);
+    }
+
+    onSetIslands() {
+        const {
+            actions: {
+                setIslands
+            }
+        } = this.props;
+
+        setIslands();
+    }
+
+    onSetPlayerIslands() {
+        this.setState({
+            islands_set: true,
+        })
+    }
+
+    onBoardStateChange(message) {
+        this.setState({
+            message: message,
+        })
     }
 
     render() {
         const {
-            active_player,
             game_state,
-            player1name,
-            player2name,
-            channel
+            channel,
+            player,
+            player1,
+            player2,
         } = this.props;
+
+        const {
+            islands_set,
+            message
+        } = this.state;
 
         switch (game_state) {
             case "initialized":
@@ -58,12 +95,49 @@ class App extends React.Component {
                 return (
                     <div>
                         <div>
-                            {game_state}, {player1name} vs. {player2name}
+                            {game_state}, {player1.name} vs. {player2.name}
                         </div>
-                        <Board channel={channel} player={active_player} />
+                        <div>
+                            Player: {player.name} | {islands_set ? "Islands set" : "Islands not set"} | {message}
+                        </div>
+                        <Board
+                            channel={channel}
+                            player={player}
+                            gameState={game_state}
+                            islands_set={islands_set}
+                            onSetIslands={this.onSetIslands}
+                            onSetPlayerIslands={this.onSetPlayerIslands}
+                            onStateChange={(message) => this.onBoardStateChange(message)}
+                        />
                     </div>
                 );
                 break;
+            case "islands_set":
+                return (
+                    <div>
+                        <div>
+                            {game_state}, {player1.name} vs. {player2.name}
+                        </div>
+                        <div>
+                            Player: {player.name} | {islands_set ? "Islands set" : "Islands not set"} | {message}
+                        </div>
+                        <Board
+                            channel={channel}
+                            player={player}
+                            game_state={game_state}
+                            islands_set={islands_set}
+                            onSetIslands={this.onSetIslands}
+                            onSetPlayerIslands={this.onSetPlayerIslands}
+                            onStateChange={(message) => this.onBoardStateChange(message)}
+                        />
+                        <OpponentBoard
+                            channel={channel}
+                            player1={player1}
+                            player2={player2}
+                            player={player}
+                        />
+                    </div>
+                );
             default:
                 return <div>Loading...</div>;
         }
@@ -72,17 +146,17 @@ class App extends React.Component {
 
 const mapStateToProps = ({
     app: {
-        active_player,
         game_state,
-        player1name,
-        player2name,
+        player1,
+        player2,
+        player,
         channel
     }
 }) => ({
-    active_player,
     game_state,
-    player1name,
-    player2name,
+    player1,
+    player2,
+    player,
     channel
 });
 

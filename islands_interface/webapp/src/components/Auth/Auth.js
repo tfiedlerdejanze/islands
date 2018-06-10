@@ -70,8 +70,6 @@ class Auth extends React.Component {
 
         event.preventDefault();
 
-        console.log('join game', joinGameName)
-        console.log('player', joinPlayerName)
         onJoinSubmit(joinGameName, joinPlayerName);
     }
 

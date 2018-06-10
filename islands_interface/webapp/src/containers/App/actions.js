@@ -13,7 +13,11 @@ const setAppData = (data) => {
     };
 };
 
-export const newGame = (name) => async (dispatch) => {
+export const setIslands = () => (dispatch) => {
+    dispatch(setAppData({game_state: "islands_set"}))
+}
+
+export const newGame = (name) => (dispatch) => {
     let channel = IslandsInterface.newChannel(name, name);
 
     channel.on("player_added", response => {
@@ -21,8 +25,8 @@ export const newGame = (name) => async (dispatch) => {
 
         const appData = Object.assign({}, {
             game_state: "players_set",
-            player1name: name,
-            player2name: response.player_name,
+            player1: {name, key: "player1"},
+            player2: {name: response.player_name, key: "player2"},
             channel: channel
         });
 
@@ -31,9 +35,10 @@ export const newGame = (name) => async (dispatch) => {
 
     const startNewGame = () => {
         const appData = Object.assign({}, {
-            active_player: {name, key: "player1"},
+            player: {name, key: "player1"},
             game_state: "new_game",
-            player1name: name,
+            player1: {name, key: "player1"},
+            player2: {name: null, key: "player2"},
             channel: channel
         });
 
@@ -44,15 +49,15 @@ export const newGame = (name) => async (dispatch) => {
     IslandsInterface.newGame(channel, startNewGame, init);
 }
 
-export const joinGame = (channel_name, name) => async (dispatch) => {
+export const joinGame = (channel_name, name) => (dispatch) => {
     let channel = IslandsInterface.newChannel(channel_name, name);
 
     const updateAppData = () => {
         const appData = Object.assign({}, {
-            active_player: {name, key: "player2"},
+            player: {name, key: "player2"},
             game_state: "players_set",
-            player1name: channel_name,
-            player2name: name,
+            player1: {name: channel_name, key: "player1"},
+            player2: {name, key: "player2"},
             channel: channel
         });
 
