@@ -1,0 +1,13 @@
+.info {
+    text-align: center;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    padding-top: 20px;
+}
+
+.col {
+    flex: 0 0 50%;
+}

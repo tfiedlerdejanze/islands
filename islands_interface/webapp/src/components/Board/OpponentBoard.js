@@ -14,15 +14,11 @@ class OpponentBoard extends React.Component {
     constructor(props) {
         super(props);
 
-        const opponent = {player1: props.player1, player2: props.player2};
-        delete opponent[props.player.key];
-
-        console.log(opponent);
-
         this.state = {
             player: {name: props.player.name, key: props.player.key},
-            opponent: opponent,
             channel: props.channel,
+            guessed_coordinates: [],
+            opponent: props.opponent,
             board: blankBoard,
             selected: null,
         }
@@ -37,21 +33,29 @@ class OpponentBoard extends React.Component {
         } = this.state;
 
         channel.on("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
+          //this.processGuess(response);
         })
-    }
+      }
 
-    componentWillUnmount() {
+      componentWillUnmount() {
+
         const {
-            channel
+            channel,
+            player,
         } = this.state;
 
+        channel.off("player_added", response => {
+          this.processPlayerAdded();
+        })
+
+        channel.off("player_set_islands", response => {
+          this.processOpponentSetIslands();
+        })
+
         channel.off("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
-        });
-    }
+          this.processGuess(response);
+        })
+      }
 
     setSelected(x, y) {
         this.setState({
@@ -61,8 +65,12 @@ class OpponentBoard extends React.Component {
 
     guessCoordinate() {
         const {
-            selected
+            selected,
+            channel,
+            player,
         } = this.state;
+
+        IslandsInterface.guessCoordinate(channel, player.key, selected.x, selected.y)
     }
 
     renderBoard() {
@@ -102,13 +110,17 @@ class OpponentBoard extends React.Component {
         } = this.props;
 
         return (
-            <div className={className}>
-                <button
-                    onClick={this.guessCoordinate}
-                >
-                    Guess coord
-                </button>
-                {this.renderBoard()}
+            <div>
+                <div className={s.filter}>
+                    <button
+                        onClick={this.guessCoordinate}
+                    >
+                        Guess coord
+                    </button>
+                </div>
+                <div className={className}>
+                    {this.renderBoard()}
+                </div>
             </div>
         );
     }

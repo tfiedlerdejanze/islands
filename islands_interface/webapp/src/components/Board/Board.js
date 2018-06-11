@@ -33,8 +33,6 @@ class Board extends React.Component {
             channel: props.channel,
             selected_island: null,
             board: blankBoard,
-            player1_set: false,
-            player2_set: false,
             islands_set: false,
             board: {
                 l_shape: {coordinates: []},
@@ -48,76 +46,37 @@ class Board extends React.Component {
 
         this.setIslands = this.setIslands.bind(this);
         this.setSelected = this.setSelected.bind(this);
+        this.unsetSelected = this.unsetSelected.bind(this);
         this.positionIsland = this.positionIsland.bind(this);
         this.positionIslandSuccess = this.positionIslandSuccess.bind(this);
         this.setSelectedIsland = this.setSelectedIsland.bind(this);
     }
 
-    componentDidMount() {
-        const {
-            channel,
-            player,
-        } = this.state;
-
-        channel.on("player_set_islands", response => {
-            const players_set = (response.player === "player2" && this.state.player1_set) || (response.player === "player1" && this.state.player2_set)
-            let message = (player.key !== response.player)
-                          ? `${response.player} set their islands`
-                          : "Waiting for other player";
-
-            if (players_set) {
-                message = "Start game"
-                this.props.onStateChange(message);
-                this.props.onSetIslands(message);
-                return;
-            }
-
-            this.props.onStateChange(message);
-            this.setState({
-                [`${response.player}_set`]: true,
-            });
-        })
-
-        channel.on("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
-        })
-    }
-
-    componentWillUnmount() {
-        const {
-            channel
-        } = this.state;
-
-        channel.off("player_set_islands", response => {
-            console.log(response)
-        })
-
-        channel.off("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
+    unsetSelected() {
+        this.setState({
+            selected: null
         });
     }
 
     setSelected(x, y) {
+        if (this.state.islands_set) return;
         this.setState({
             selected: {x, y}
         });
     }
 
-    positionIsland() {
+    positionIsland(x, y) {
         const {
             selected_island,
-            selected,
             channel,
             player
         } = this.state;
 
         if (selected_island) {
-            const onSuccess = () => this.positionIslandSuccess(selected.x, selected.y, selected_island);
+            const onSuccess = () => this.positionIslandSuccess(x, y, selected_island);
             const onError = () => console.log('error');
 
-            IslandsInterface.positionIsland(channel, player.key, selected_island, selected.x, selected.y, onSuccess, onError);
+            IslandsInterface.positionIsland(channel, player.key, selected_island, x, y, onSuccess, onError);
         }
     }
 
@@ -142,9 +101,9 @@ class Board extends React.Component {
             player
         } = this.state;
 
-        const onSuccess = (board) => {
+        const onSuccess = (response) => {
             this.setState({
-                board: board,
+                board: response.board,
                 islands_set: true,
             })
 
@@ -181,24 +140,33 @@ class Board extends React.Component {
         const {
             board,
             selected,
+            selected_island,
         } =  this.state;
 
         const pos_coordinates = Object.keys(board).reduce((acc, island) => {
             return acc.concat(board[island].coordinates)
         }, []);
 
-        return boardRange.map((y) => {
-            const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === y);
+        const maybe_island_coordinates = selected && selected_island && addOffsets({row: selected.x, col: selected.y}, selected_island)
+
+        return boardRange.map((col) => {
+            const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === col);
+            const maybePositionedCell = maybe_island_coordinates && maybe_island_coordinates.find((coord) => coord.row === row && coord.col === col);
 
             const cellClass = classNames({
                 [s['cell']]: true,
                 [s['cell--positioned']]: positionedCell,
+                [s['cell--selected']]: maybePositionedCell,
                 [s['cell--set']]: positionedCell && islands_set,
-                [s['cell--selected']]: selected && (row === selected.x) && (y === selected.y),
             });
 
             return (
-                <div key={y} className={cellClass} onClick={() => this.setSelected(row, y)}>
+                <div key={col}
+                    className={cellClass}
+                    onMouseEnter={() => this.setSelected(row, col)}
+                    onMouseLeave={this.unsetSelected}
+                    onClick={() => this.positionIsland(row, col)}
+                >
                     <div className={s.inner} />
                 </div>
             );
@@ -214,51 +182,46 @@ class Board extends React.Component {
         const {
             board,
             islands,
-            selected,
             selected_island,
         } = this.state;
 
         const positioned_island_count = Object.keys(board).filter(island => board[island].coordinates.length > 0).length;
 
         const className = classNames({
-            [s.board]: game_state !== "islands_set",
-            [s['board--small']]: game_state === "islands_set"
+            [s.board]: true,
         });
 
         return (
             <div>
-                {game_state !== "islands_set" &&
-                    <div>
-                        <ul className={s.filter}>
-                            {islands.map((island) => {
-                                const filetItemClass = classNames({
-                                    [s['filter__item']]: true,
-                                    [s['filter__item--selected']]: selected_island === island && !island_set,
-                                });
+                <div className={s.filter}>
+                    {game_state !== "islands_set" &&
+                        <div>
+                            <ul className={s['filter--list']}>
+                                {islands.map((island) => {
+                                    const filterItemClass = classNames({
+                                        [s['filter__item']]: true,
+                                        [s['filter__item--selected']]: selected_island === island && !island_set,
+                                    });
 
-                                return (
-                                    <li onClick={() => this.setSelectedIsland(island)}
-                                        className={filetItemClass}
-                                        key={island}
-                                    >
-                                        {island}
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                                    return (
+                                        <li onClick={() => this.setSelectedIsland(island)}
+                                            className={filterItemClass}
+                                            key={island}
+                                        >
+                                            {island}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
 
-                        <button disabled={!selected_island || !selected_island && selected}
-                            onClick={this.positionIsland}
-                        >
-                            Position islands
-                        </button>
-                        <button disabled={positioned_island_count !== islands.length}
-                            onClick={this.setIslands}
-                        >
-                            Set Islands
-                        </button>
-                    </div>
-                }
+                            <button disabled={positioned_island_count !== islands.length}
+                                onClick={this.setIslands}
+                            >
+                                Set Islands
+                            </button>
+                        </div>
+                    }
+                </div>
                 <div className={className}>
                     {this.renderBoard()}
                 </div>

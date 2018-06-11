@@ -1,17 +1,10 @@
 .board {
     margin: 0 auto;
-    width: 100vw;
-    max-width: 1200px;
-    height: 100vw;
-    max-height: 90vh;
+    width: 100%;
+    max-width: 800px;
+    height: 100vh;
+    max-height: 100vh;
     font-size: 1rem;
-
-    &--small {
-        width: 300px;
-        height: auto;
-        float: left;
-        margin-bottom: 20px;
-    }
 
     @media screen and (max-width: 1400px) {
         max-width: 560px;
@@ -70,6 +63,13 @@
 .filter {
     margin: 0;
     padding: 0;
+    height: 60px;
+    text-align: center;
+
+    &--list {
+        padding: 0;
+        margin: 0;
+    }
 
     &__item {
         display: inline-block;

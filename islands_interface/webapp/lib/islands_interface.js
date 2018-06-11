@@ -67,7 +67,7 @@ class IslandsInterface {
             .receive("ok", response => {
                 console.log("The board:")
                 console.dir(response.board)
-                onSuccess(response.board)
+                onSuccess(response)
             })
             .receive("error", response => {
                 console.log(`Unable to set islands for player ${player}.`, response)

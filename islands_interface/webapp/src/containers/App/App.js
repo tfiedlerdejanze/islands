@@ -9,19 +9,11 @@ import * as actions from './actions';
 
 import s from './App.scss';
 import { SET_LOADING } from './actionTypes';
+import Game from '../Game/Game';
 
 class App extends React.Component {
     constructor() {
         super();
-
-        this.state = {
-            message: 'Set your islands',
-            islands_set: false,
-        };
-
-        this.onSetPlayerIslands = this.onSetPlayerIslands.bind(this)
-        this.onBoardStateChange = this.onBoardStateChange.bind(this)
-        this.onSetIslands = this.onSetIslands.bind(this)
 
         this.createGameChannel = this.createGameChannel.bind(this);
         this.joinGameChannel = this.joinGameChannel.bind(this);
@@ -47,41 +39,10 @@ class App extends React.Component {
         joinGame(channel_name, name);
     }
 
-    onSetIslands() {
-        const {
-            actions: {
-                setIslands
-            }
-        } = this.props;
-
-        setIslands();
-    }
-
-    onSetPlayerIslands() {
-        this.setState({
-            islands_set: true,
-        })
-    }
-
-    onBoardStateChange(message) {
-        this.setState({
-            message: message,
-        })
-    }
-
     render() {
         const {
             game_state,
-            channel,
-            player,
-            player1,
-            player2,
         } = this.props;
-
-        const {
-            islands_set,
-            message
-        } = this.state;
 
         switch (game_state) {
             case "initialized":
@@ -92,52 +53,11 @@ class App extends React.Component {
                 break;
             case "new_game":
             case "players_set":
-                return (
-                    <div>
-                        <div>
-                            {game_state}, {player1.name} vs. {player2.name}
-                        </div>
-                        <div>
-                            Player: {player.name} | {islands_set ? "Islands set" : "Islands not set"} | {message}
-                        </div>
-                        <Board
-                            channel={channel}
-                            player={player}
-                            gameState={game_state}
-                            islands_set={islands_set}
-                            onSetIslands={this.onSetIslands}
-                            onSetPlayerIslands={this.onSetPlayerIslands}
-                            onStateChange={(message) => this.onBoardStateChange(message)}
-                        />
-                    </div>
-                );
-                break;
             case "islands_set":
                 return (
-                    <div>
-                        <div>
-                            {game_state}, {player1.name} vs. {player2.name}
-                        </div>
-                        <div>
-                            Player: {player.name} | {islands_set ? "Islands set" : "Islands not set"} | {message}
-                        </div>
-                        <Board
-                            channel={channel}
-                            player={player}
-                            game_state={game_state}
-                            islands_set={islands_set}
-                            onSetIslands={this.onSetIslands}
-                            onSetPlayerIslands={this.onSetPlayerIslands}
-                            onStateChange={(message) => this.onBoardStateChange(message)}
-                        />
-                        <OpponentBoard
-                            channel={channel}
-                            player1={player1}
-                            player2={player2}
-                            player={player}
-                        />
-                    </div>
+                    <Game />
                 );
+                break;
             default:
                 return <div>Loading...</div>;
         }
@@ -147,17 +67,9 @@ class App extends React.Component {
 const mapStateToProps = ({
     app: {
         game_state,
-        player1,
-        player2,
-        player,
-        channel
     }
 }) => ({
     game_state,
-    player1,
-    player2,
-    player,
-    channel
 });
 
 const mapDispatchToProps = dispatch => ({

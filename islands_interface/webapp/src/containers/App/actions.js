@@ -13,25 +13,23 @@ const setAppData = (data) => {
     };
 };
 
-export const setIslands = () => (dispatch) => {
-    dispatch(setAppData({game_state: "islands_set"}))
+export const setIslands = (channel) => (dispatch) => {
+    dispatch(setAppData({game_state: "islands_set", channel: channel}))
+}
+
+export const addPlayer = (response, channel) => (dispatch) => {
+    const appData = Object.assign({}, {
+        game_state: "players_set",
+        player1: {name, key: "player1"},
+        player2: {name: response.player, key: "player2"},
+        channel: channel
+    });
+
+    dispatch(setAppData(appData));
 }
 
 export const newGame = (name) => (dispatch) => {
     let channel = IslandsInterface.newChannel(name, name);
-
-    channel.on("player_added", response => {
-        console.log(response);
-
-        const appData = Object.assign({}, {
-            game_state: "players_set",
-            player1: {name, key: "player1"},
-            player2: {name: response.player_name, key: "player2"},
-            channel: channel
-        });
-
-        dispatch(setAppData(appData));
-    })
 
     const startNewGame = () => {
         const appData = Object.assign({}, {
