@@ -33,14 +33,6 @@ class Board extends React.Component {
             channel: props.channel,
             selected_island: null,
             board: blankBoard,
-            islands_set: false,
-            board: {
-                l_shape: {coordinates: []},
-                s_shape: {coordinates: []},
-                square: {coordinates: []},
-                attol: {coordinates: []},
-                dot: {coordinates: []},
-            },
             selected: null,
         }
 
@@ -51,6 +43,40 @@ class Board extends React.Component {
         this.positionIslandSuccess = this.positionIslandSuccess.bind(this);
         this.setSelectedIsland = this.setSelectedIsland.bind(this);
     }
+
+    componentDidMount() {
+        const {
+            channel,
+            player,
+        } = this.state;
+
+        channel.on("player_guessed_coordinate", response => {
+            this.opponentGuess(response);
+        })
+    }
+
+    componentWillUnmount() {
+
+        const {
+            channel,
+            player,
+        } = this.state;
+
+        channel.off("player_guessed_coordinate", response => {
+            this.opponentGuess(response);
+        })
+    }
+
+    opponentGuess(response) {
+        const {
+            player
+        } = this.state;
+
+        if (response.player !== player.key) {
+            console.log(response);
+        }
+    }
+
 
     unsetSelected() {
         this.setState({
@@ -134,29 +160,26 @@ class Board extends React.Component {
 
     renderCells(row) {
         const {
-            islands_set
-        } = this.props;
-
-        const {
             board,
             selected,
+            islands_set,
             selected_island,
         } =  this.state;
 
+        const maybe_island_coordinates = selected && selected_island && addOffsets({row: selected.x, col: selected.y}, selected_island)
         const pos_coordinates = Object.keys(board).reduce((acc, island) => {
             return acc.concat(board[island].coordinates)
         }, []);
 
-        const maybe_island_coordinates = selected && selected_island && addOffsets({row: selected.x, col: selected.y}, selected_island)
 
         return boardRange.map((col) => {
-            const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === col);
             const maybePositionedCell = maybe_island_coordinates && maybe_island_coordinates.find((coord) => coord.row === row && coord.col === col);
+            const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === col);
 
             const cellClass = classNames({
                 [s['cell']]: true,
                 [s['cell--positioned']]: positionedCell,
-                [s['cell--selected']]: maybePositionedCell,
+                [s['cell--selected']]: !islands_set && maybePositionedCell,
                 [s['cell--set']]: positionedCell && islands_set,
             });
 
@@ -175,7 +198,6 @@ class Board extends React.Component {
 
     render() {
         const {
-            game_state,
             island_set
         } = this.props;
 
@@ -194,7 +216,7 @@ class Board extends React.Component {
         return (
             <div>
                 <div className={s.filter}>
-                    {game_state !== "islands_set" &&
+                    {!island_set &&
                         <div>
                             <ul className={s['filter--list']}>
                                 {islands.map((island) => {

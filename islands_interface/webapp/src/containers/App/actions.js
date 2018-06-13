@@ -20,7 +20,6 @@ export const setIslands = (channel) => (dispatch) => {
 export const addPlayer = (response, channel) => (dispatch) => {
     const appData = Object.assign({}, {
         game_state: "players_set",
-        player1: {name, key: "player1"},
         player2: {name: response.player, key: "player2"},
         channel: channel
     });

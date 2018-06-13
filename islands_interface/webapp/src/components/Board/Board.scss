@@ -41,6 +41,14 @@
         background: forestgreen;
     }
 
+    &--miss {
+        background: gray;
+    }
+
+    &--hit {
+        background: turquoise;
+    }
+
     &:after {
         content: "";
         float: left;

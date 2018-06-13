@@ -24,7 +24,7 @@ class Game extends React.Component {
         this.onSetPlayerIslands = this.onSetPlayerIslands.bind(this)
         this.onBoardStateChange = this.onBoardStateChange.bind(this)
         this.onSetIslands = this.onSetIslands.bind(this)
-        this.onaddPlayer= this.onaddPlayer.bind(this)
+        this.onAddPlayer= this.onAddPlayer.bind(this)
     }
 
     componentDidMount() {
@@ -35,7 +35,7 @@ class Game extends React.Component {
 
 
         channel.on("player_added", response => {
-            this.onaddPlayer(response);
+            this.onAddPlayer(response);
         })
 
         channel.on("player_set_islands", response => {
@@ -56,11 +56,6 @@ class Game extends React.Component {
                 [`${response.player}_set`]: true,
             });
         })
-
-        channel.on("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
-        })
     }
 
     componentWillUnmount() {
@@ -75,14 +70,9 @@ class Game extends React.Component {
         channel.off("player_set_islands", response => {
             console.log(response)
         })
-
-        channel.off("player_guessed_coordinate", response => {
-            console.log(response)
-            //this.processGuess(response);
-        });
     }
 
-    onaddPlayer(response) {
+    onAddPlayer(response) {
         const {
             actions: {
                 addPlayer
@@ -143,7 +133,6 @@ class Game extends React.Component {
                         <Board
                             player={player}
                             channel={channel}
-                            game_state={game_state}
                             islands_set={islands_set}
                             onSetPlayerIslands={this.onSetPlayerIslands}
                             onStateChange={this.onBoardStateChange}

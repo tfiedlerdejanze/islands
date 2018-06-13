@@ -17,12 +17,13 @@ class OpponentBoard extends React.Component {
         this.state = {
             player: {name: props.player.name, key: props.player.key},
             channel: props.channel,
-            guessed_coordinates: [],
-            opponent: props.opponent,
+            hits: [],
+            misses: [],
             board: blankBoard,
             selected: null,
         }
 
+        this.unsetSelected = this.unsetSelected.bind(this)
         this.setSelected = this.setSelected.bind(this);
     }
 
@@ -33,33 +34,76 @@ class OpponentBoard extends React.Component {
         } = this.state;
 
         channel.on("player_guessed_coordinate", response => {
-          //this.processGuess(response);
+            this.playerGuess(response);
         })
-      }
+    }
 
-      componentWillUnmount() {
+    componentWillUnmount() {
 
         const {
             channel,
             player,
         } = this.state;
 
-        channel.off("player_added", response => {
-          this.processPlayerAdded();
-        })
-
-        channel.off("player_set_islands", response => {
-          this.processOpponentSetIslands();
-        })
-
         channel.off("player_guessed_coordinate", response => {
-          this.processGuess(response);
+            this.playerGuess(response);
         })
-      }
+    }
+
+    playerGuess(response) {
+        const {
+            player,
+            misses,
+            hits,
+        } = this.state;
+
+        const {
+            onStateChange
+        } = this.props;
+
+        if (response.player === player.key) {
+            if (response.result.win === "win") {
+                // WIN
+            } else if (response.result.island !== "none") {
+                //board = hit(board, response.row, response.col);
+                onStateChange("You forested your opponent's " + response.result.island + " island!");
+                this.setState({
+                    hits: [
+                        ...hits,
+                        {row: response.row, col: response.col}
+                    ]
+                })
+            } else if (response.result.hit === true) {
+                onStateChange("Hit!");
+                this.setState({
+                    hits: [
+                        ...hits,
+                        {row: response.row, col: response.col}
+                    ]
+                })
+            } else {
+                onStateChange("Miss");
+                this.setState({
+                    misses: [
+                        ...misses,
+                        {row: response.row, col: response.col}
+                    ]
+                })
+                //this.setState({message: "Oops, you missed."});
+                //board = miss(board, response.row, response.col);
+            }
+        }
+    }
 
     setSelected(x, y) {
         this.setState({
-            selected: {x, y}
+            selected: { x, y }
+        });
+    }
+
+    unsetSelected() {
+        this.setState({
+            selected: null
         });
     }
 
@@ -86,18 +130,33 @@ class OpponentBoard extends React.Component {
 
     renderCells(row) {
         const {
-            board,
             selected,
+            misses,
+            hits,
         } =  this.state;
 
-        return boardRange.map((y) => {
+        return boardRange.map((col) => {
+            const isSelected = !isMiss && !isHit && selected && row === selected.x && col === selected.y;
+            const isMiss = misses.find((coord) => coord.row === row && coord.col === col);
+            const isHit = hits.find((coord) => coord.row === row && coord.col === col);
+
             const cellClass = classNames({
+                [s['cell--selected']]: isSelected,
+                [s['cell--miss']]: isMiss,
+                [s['cell--hit']]: isHit,
                 [s['cell']]: true,
-                [s['cell--selected']]: selected && (row === selected.x) && (y === selected.y),
             });
 
+            const onClick = () => this.guessCoordinate(row, col);
+            const onMouseEnter = () => this.setSelected(row, col);
+
             return (
-                <div key={y} className={cellClass} onClick={() => this.setSelected(row, y)}>
+                <div key={col}
+                    className={cellClass}
+                    onClick={onClick}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={this.unsetSelected}
+                >
                     <div className={s.inner} />
                 </div>
             );
@@ -111,13 +170,7 @@ class OpponentBoard extends React.Component {
 
         return (
             <div>
-                <div className={s.filter}>
-                    <button
-                        onClick={this.guessCoordinate}
-                    >
-                        Guess coord
-                    </button>
-                </div>
+                <div className={s.filter} />
                 <div className={className}>
                     {this.renderBoard()}
                 </div>
