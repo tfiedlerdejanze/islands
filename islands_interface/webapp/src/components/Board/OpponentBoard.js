@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import IslandsInterface from "./../../../lib/islands_interface"
-import {boardRange, blankBoard} from "./../../../lib/utils";
+import {boardRange} from "./../../../lib/utils";
 
 import classNames from 'classnames';
 import s from './Board.scss';
@@ -19,7 +19,6 @@ class OpponentBoard extends React.Component {
             channel: props.channel,
             hits: [],
             misses: [],
-            board: blankBoard,
             selected: null,
         }
 
@@ -58,15 +57,27 @@ class OpponentBoard extends React.Component {
         } = this.state;
 
         const {
-            onStateChange
+            onStateChange,
+            player1,
+            player2
         } = this.props;
 
+
         if (response.player === player.key) {
+            const opponent = response.player === player1.key ? player2 : player1;
+            console.log('your opponent:', opponent.key);
+
             if (response.result.win === "win") {
-                // WIN
+                onStateChange("You won!");
+                this.setState({
+                    hits: [
+                        ...hits,
+                        {row: response.row, col: response.col}
+                    ]
+                })
             } else if (response.result.island !== "none") {
                 //board = hit(board, response.row, response.col);
-                onStateChange("You forested your opponent's " + response.result.island + " island!");
+                onStateChange("You forested your opponent's " + response.result.island + " island! - " + opponent.name + "'s turn.");
                 this.setState({
                     hits: [
                         ...hits,
@@ -74,7 +85,7 @@ class OpponentBoard extends React.Component {
                     ]
                 })
             } else if (response.result.hit === true) {
-                onStateChange("Hit!");
+                onStateChange("Hit! - " + opponent.name + "'s turn.");
                 this.setState({
                     hits: [
                         ...hits,
@@ -82,7 +93,7 @@ class OpponentBoard extends React.Component {
                     ]
                 })
             } else {
-                onStateChange("Miss");
+                onStateChange("Miss - " + opponent.name + "'s turn.");
                 this.setState({
                     misses: [
                         ...misses,
@@ -112,9 +123,19 @@ class OpponentBoard extends React.Component {
             selected,
             channel,
             player,
+            misses,
+            hits
         } = this.state;
 
-        IslandsInterface.guessCoordinate(channel, player.key, selected.x, selected.y)
+        const row = selected.x;
+        const col = selected.y;
+
+        const isMiss = misses.find((coord) => coord.row === row && coord.col === col);
+        const isHit = hits.find((coord) => coord.row === row && coord.col === col);
+
+        if (!isMiss && !isHit) {
+            IslandsInterface.guessCoordinate(channel, player.key, selected.x, selected.y);
+        }
     }
 
     renderBoard() {

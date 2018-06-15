@@ -198,7 +198,7 @@ class Board extends React.Component {
 
     render() {
         const {
-            island_set
+            islands_set
         } = this.props;
 
         const {
@@ -216,13 +216,13 @@ class Board extends React.Component {
         return (
             <div>
                 <div className={s.filter}>
-                    {!island_set &&
+                    {!islands_set &&
                         <div>
                             <ul className={s['filter--list']}>
                                 {islands.map((island) => {
                                     const filterItemClass = classNames({
                                         [s['filter__item']]: true,
-                                        [s['filter__item--selected']]: selected_island === island && !island_set,
+                                        [s['filter__item--selected']]: selected_island === island,
                                     });
 
                                     return (

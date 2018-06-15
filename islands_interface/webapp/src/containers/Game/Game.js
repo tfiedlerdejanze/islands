@@ -144,7 +144,6 @@ class Game extends React.Component {
                             player1={player1}
                             player2={player2}
                             channel={channel}
-                            gameState={game_state}
                             onStateChange={this.onBoardStateChange}
                         />
                     </div>
