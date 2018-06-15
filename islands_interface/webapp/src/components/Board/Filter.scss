@@ -1,0 +1,24 @@
+.filter {
+    margin: 0;
+    padding: 0;
+    height: 60px;
+    text-align: center;
+
+    &--list {
+        padding: 0;
+        margin: 0;
+    }
+
+    &__item {
+        display: inline-block;
+        margin-right: 6px;
+        cursor: pointer;
+        padding: 3px 6px;
+        border: 1px solid gray;
+
+        &--selected {
+            color: blueviolet;
+            border-color: #333;
+        }
+    }
+}

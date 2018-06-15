@@ -8,6 +8,7 @@ import s from './Board.scss';
 
 const className = classNames({
     [s.board]: true,
+    [s['board--space']]: true,
 });
 
 class OpponentBoard extends React.Component {
@@ -49,6 +50,29 @@ class OpponentBoard extends React.Component {
         })
     }
 
+    hit(row, col) {
+        const { hits } = this.state;
+
+        this.setState({
+            hits: [
+                ...hits,
+                {row: row, col: col}
+            ]
+        })
+
+    }
+
+    miss(row, col) {
+        const { misses } = this.state;
+
+        this.setState({
+            misses: [
+                ...misses,
+                {row: row, col: col}
+            ]
+        })
+    }
+
     playerGuess(response) {
         const {
             player,
@@ -68,40 +92,17 @@ class OpponentBoard extends React.Component {
             console.log('your opponent:', opponent.key);
 
             if (response.result.win === "win") {
+                this.hit(response.row, response.col)
                 onStateChange("You won!");
-                this.setState({
-                    hits: [
-                        ...hits,
-                        {row: response.row, col: response.col}
-                    ]
-                })
             } else if (response.result.island !== "none") {
-                //board = hit(board, response.row, response.col);
+                this.hit(response.row, response.col)
                 onStateChange("You forested your opponent's " + response.result.island + " island! - " + opponent.name + "'s turn.");
-                this.setState({
-                    hits: [
-                        ...hits,
-                        {row: response.row, col: response.col}
-                    ]
-                })
             } else if (response.result.hit === true) {
+                this.hit(response.row, response.col)
                 onStateChange("Hit! - " + opponent.name + "'s turn.");
-                this.setState({
-                    hits: [
-                        ...hits,
-                        {row: response.row, col: response.col}
-                    ]
-                })
             } else {
+                this.miss(response.row, response.col)
                 onStateChange("Miss - " + opponent.name + "'s turn.");
-                this.setState({
-                    misses: [
-                        ...misses,
-                        {row: response.row, col: response.col}
-                    ]
-                })
-                //this.setState({message: "Oops, you missed."});
-                //board = miss(board, response.row, response.col);
             }
         }
     }
@@ -191,7 +192,6 @@ class OpponentBoard extends React.Component {
 
         return (
             <div>
-                <div className={s.filter} />
                 <div className={className}>
                     {this.renderBoard()}
                 </div>

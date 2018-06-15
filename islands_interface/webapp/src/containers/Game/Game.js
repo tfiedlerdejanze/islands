@@ -15,6 +15,7 @@ class Game extends React.Component {
         this.state = {
             message: 'Set your islands',
             channel: props.channel,
+            player1: props.player1,
             player: props.player,
             player1_set: false,
             player2_set: false,
@@ -24,7 +25,7 @@ class Game extends React.Component {
         this.onSetPlayerIslands = this.onSetPlayerIslands.bind(this)
         this.onBoardStateChange = this.onBoardStateChange.bind(this)
         this.onSetIslands = this.onSetIslands.bind(this)
-        this.onAddPlayer= this.onAddPlayer.bind(this)
+        this.onPlayerAdded= this.onPlayerAdded.bind(this)
     }
 
     componentDidMount() {
@@ -35,20 +36,30 @@ class Game extends React.Component {
 
 
         channel.on("player_added", response => {
-            this.onAddPlayer(response);
+            this.onPlayerAdded(response);
         })
 
         channel.on("player_set_islands", response => {
-            const players_set = (response.player === "player2" && this.state.player1_set) || (response.player === "player1" && this.state.player2_set)
-            let message = (player.key !== response.player)
-                          ? `${response.player} set their islands`
-                          : "Waiting for other player";
+            const {
+                player1_set,
+                player2_set,
+                player1,
+                player,
+            } = this.state;
+            let message;
+
+            if (player.key !== response.player) {
+                message = `${response.player} set their islands.`
+            } else {
+                message = "Waiting for other player."
+            }
+
+            const players_set = (response.player === "player2" && player1_set) ||
+                                (response.player === "player1" && player2_set)
 
             if (players_set) {
-                message = "Start game"
-                this.onBoardStateChange(message);
+                message = player.key === "player1" ? "Your turn" : `${player1.name}'s turn`;
                 this.onSetIslands(message);
-                return;
             }
 
             this.onBoardStateChange(message);
@@ -72,7 +83,7 @@ class Game extends React.Component {
         })
     }
 
-    onAddPlayer(response) {
+    onPlayerAdded(response) {
         const {
             actions: {
                 addPlayer

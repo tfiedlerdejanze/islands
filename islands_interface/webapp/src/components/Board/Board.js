@@ -1,18 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import IslandsInterface from "./../../../lib/islands_interface"
-import {boardRange, blankBoard} from "./../../../lib/utils";
+import {boardRange, blankBoard, offsets} from "./../../../lib/utils";
+
+import Filter from './Filter';
 
 import classNames from 'classnames';
 import s from './Board.scss';
-
-const offsets = {
-    atoll: [[0, 0], [0, 1], [1, 1], [2, 0], [2, 1]],
-    s_shape: [[0, 1], [0, 2], [1, 0], [1, 1]],
-    l_shape: [[0, 0], [1, 0], [2, 0], [2, 1]],
-    square: [[0, 0], [0, 1], [1, 0], [1, 1]],
-    dot: [[0, 0]]
-}
 
 const addOffsets = (coordinate, island) => {
     return offsets[island].map((offset) => {
@@ -171,7 +165,6 @@ class Board extends React.Component {
             return acc.concat(board[island].coordinates)
         }, []);
 
-
         return boardRange.map((col) => {
             const maybePositionedCell = maybe_island_coordinates && maybe_island_coordinates.find((coord) => coord.row === row && coord.col === col);
             const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === col);
@@ -180,7 +173,7 @@ class Board extends React.Component {
                 [s['cell']]: true,
                 [s['cell--positioned']]: positionedCell,
                 [s['cell--selected']]: !islands_set && maybePositionedCell,
-                [s['cell--set']]: positionedCell && islands_set,
+                [s['cell--set']]: islands_set && positionedCell,
             });
 
             return (
@@ -207,43 +200,22 @@ class Board extends React.Component {
             selected_island,
         } = this.state;
 
-        const positioned_island_count = Object.keys(board).filter(island => board[island].coordinates.length > 0).length;
-
         const className = classNames({
             [s.board]: true,
+            [s['board--space']]: islands_set,
         });
 
         return (
             <div>
-                <div className={s.filter}>
-                    {!islands_set &&
-                        <div>
-                            <ul className={s['filter--list']}>
-                                {islands.map((island) => {
-                                    const filterItemClass = classNames({
-                                        [s['filter__item']]: true,
-                                        [s['filter__item--selected']]: selected_island === island,
-                                    });
-
-                                    return (
-                                        <li onClick={() => this.setSelectedIsland(island)}
-                                            className={filterItemClass}
-                                            key={island}
-                                        >
-                                            {island}
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-
-                            <button disabled={positioned_island_count !== islands.length}
-                                onClick={this.setIslands}
-                            >
-                                Set Islands
-                            </button>
-                        </div>
-                    }
-                </div>
+                {!islands_set &&
+                    <Filter
+                        board={board}
+                        islands={islands}
+                        selected_island={selected_island}
+                        onSetSelectedIsland={this.setSelectedIsland}
+                        onSetIslands={this.setIslands}
+                    />
+                }
                 <div className={className}>
                     {this.renderBoard()}
                 </div>
