@@ -16,7 +16,7 @@ class OpponentBoard extends React.Component {
         super(props);
 
         this.state = {
-            player: {name: props.player.name, key: props.player.key},
+            player: props.player,
             channel: props.channel,
             hits: [],
             misses: [],
@@ -39,10 +39,8 @@ class OpponentBoard extends React.Component {
     }
 
     componentWillUnmount() {
-
         const {
             channel,
-            player,
         } = this.state;
 
         channel.off("player_guessed_coordinate", response => {
@@ -54,10 +52,7 @@ class OpponentBoard extends React.Component {
         const { hits } = this.state;
 
         this.setState({
-            hits: [
-                ...hits,
-                {row: row, col: col}
-            ]
+            hits: [ ...hits, {row: row, col: col} ]
         })
 
     }
@@ -66,18 +61,13 @@ class OpponentBoard extends React.Component {
         const { misses } = this.state;
 
         this.setState({
-            misses: [
-                ...misses,
-                {row: row, col: col}
-            ]
+            misses: [ ...misses, {row: row, col: col} ]
         })
     }
 
     playerGuess(response) {
         const {
             player,
-            misses,
-            hits,
         } = this.state;
 
         const {
@@ -89,8 +79,6 @@ class OpponentBoard extends React.Component {
 
         if (response.player === player.key) {
             const opponent = response.player === player1.key ? player2 : player1;
-            console.log('your opponent:', opponent.key);
-
             if (response.result.win === "win") {
                 this.hit(response.row, response.col)
                 onStateChange("You won!");
@@ -158,7 +146,7 @@ class OpponentBoard extends React.Component {
         } =  this.state;
 
         return boardRange.map((col) => {
-            const isSelected = !isMiss && !isHit && selected && row === selected.x && col === selected.y;
+            const isSelected = selected && !isMiss && !isHit && row === selected.x && col === selected.y;
             const isMiss = misses.find((coord) => coord.row === row && coord.col === col);
             const isHit = hits.find((coord) => coord.row === row && coord.col === col);
 
@@ -186,10 +174,6 @@ class OpponentBoard extends React.Component {
     }
 
     render() {
-        const {
-            player,
-        } = this.props;
-
         return (
             <div>
                 <div className={className}>

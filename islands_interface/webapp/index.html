@@ -9,6 +9,109 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
     <link rel='icon' href='/favicon.ico?v=1.1' />
 
+    <style type='text/css'>
+        /* http://meyerweb.com/eric/tools/css/reset/
+           v2.0 | 20110126
+           License: none (public domain)
+        */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed,
+        figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            font-family: "Open Sans", Arial, sans-serif;
+        }
+
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure,
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+        ol, ul {
+            list-style: none;
+        }
+
+        blockquote, q {
+            quotes: none;
+        }
+
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        #root img.main-loading-spinner-logo {
+            width: 100px;
+            margin-top: 57px;
+            margin-left: -44px;
+            position: absolute;
+            top: 30%;
+            left: 50%;
+        }
+
+        #root div.main-loading-spinner {
+            height: 130px;
+            width: 130px;
+            margin-left: -65px;
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            border: 5px solid #c8c8c8;
+            border-top-color: #1eb4e6;
+            border-radius: 100%;
+            animation: main-loading-spinner-rotation .7s infinite linear;
+        }
+
+        @keyframes main-loading-spinner-rotation {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(359deg);
+            }
+        }
+
+        #root #old_browser_wrapper {
+            margin: 5% auto 0;
+            padding: 20px;
+            width: 60%;
+            min-width: 400px;
+        }
+
+        #root #old_browser_wrapper h1 {
+            font-size: 200%;
+            margin: 40px 0 20px;
+            text-align: center;
+        }
+
+        #root #old_browser_wrapper p {
+            text-align: center;
+        }
+    </style>
     <script type="application/javascript">
         function detect() {
             if (typeof navigator === 'undefined' || !navigator.userAgent) {

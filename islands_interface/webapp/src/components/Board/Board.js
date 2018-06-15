@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import IslandsInterface from "./../../../lib/islands_interface"
 import {boardRange, blankBoard, offsets} from "./../../../lib/utils";
 
-import Filter from './Filter';
+import Filter from './../Filter/Filter';
 
 import classNames from 'classnames';
 import s from './Board.scss';
@@ -23,11 +23,13 @@ class Board extends React.Component {
 
         this.state = {
             islands: ["atoll", "dot", "l_shape", "s_shape", "square"],
-            player: {name: props.player.name, key: props.player.key},
+            player: props.player,
             channel: props.channel,
             selected_island: null,
             board: blankBoard,
             selected: null,
+            misses: [],
+            hits: [],
         }
 
         this.setIslands = this.setIslands.bind(this);
@@ -61,13 +63,49 @@ class Board extends React.Component {
         })
     }
 
+    hit(row, col) {
+        const { hits } = this.state;
+
+        this.setState({
+            hits: [ ...hits, {row: row, col: col} ]
+        })
+
+    }
+
+    miss(row, col) {
+        const { misses } = this.state;
+
+        this.setState({
+            misses: [ ...misses, {row: row, col: col} ]
+        })
+    }
+
     opponentGuess(response) {
         const {
             player
         } = this.state;
 
+        const {
+            onStateChange,
+            player1,
+            player2
+        } = this.props;
+
         if (response.player !== player.key) {
-            console.log(response);
+            const opponent = response.player === player1.key ? player2 : player1;
+            if (response.result.win === "win") {
+                this.hit(response.row, response.col)
+                onStateChange("You won!");
+            } else if (response.result.island !== "none") {
+                this.hit(response.row, response.col)
+                onStateChange("Forested opponent's " + response.result.island + " island! Your turn.");
+            } else if (response.result.hit === true) {
+                this.hit(response.row, response.col)
+                onStateChange("Hit by " + opponent.name + ". Your turn.");
+            } else {
+                this.miss(response.row, response.col)
+                onStateChange("Miss. Your turn.");
+            }
         }
     }
 
@@ -132,7 +170,6 @@ class Board extends React.Component {
 
         const onError = () =>  this.setState({islands_set: false});
         IslandsInterface.setIslands(channel, player.key, onSuccess, onError);
-
       }
 
     setSelectedIsland(island) {
@@ -155,6 +192,8 @@ class Board extends React.Component {
     renderCells(row) {
         const {
             board,
+            hits,
+            misses,
             selected,
             islands_set,
             selected_island,
@@ -168,9 +207,13 @@ class Board extends React.Component {
         return boardRange.map((col) => {
             const maybePositionedCell = maybe_island_coordinates && maybe_island_coordinates.find((coord) => coord.row === row && coord.col === col);
             const positionedCell = pos_coordinates.find((coord) => coord.row === row && coord.col === col);
+            const isMiss = misses.find((coord) => coord.row === row && coord.col === col);
+            const isHit = hits.find((coord) => coord.row === row && coord.col === col);
 
             const cellClass = classNames({
                 [s['cell']]: true,
+                [s['cell--hit']]: isHit,
+                [s['cell--miss']]: isMiss,
                 [s['cell--positioned']]: positionedCell,
                 [s['cell--selected']]: !islands_set && maybePositionedCell,
                 [s['cell--set']]: islands_set && positionedCell,

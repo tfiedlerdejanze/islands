@@ -143,6 +143,8 @@ class Game extends React.Component {
                     <div className={s.col}>
                         <Board
                             player={player}
+                            player1={player1}
+                            player2={player2}
                             channel={channel}
                             islands_set={islands_set}
                             onSetPlayerIslands={this.onSetPlayerIslands}

@@ -51,8 +51,8 @@ export const joinGame = (channel_name, name) => (dispatch) => {
 
     const updateAppData = () => {
         const appData = Object.assign({}, {
-            player: {name, key: "player2"},
             game_state: "players_set",
+            player: {name, key: "player2"},
             player1: {name: channel_name, key: "player1"},
             player2: {name, key: "player2"},
             channel: channel
