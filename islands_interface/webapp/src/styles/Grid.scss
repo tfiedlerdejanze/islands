@@ -1,0 +1,17 @@
+.row {
+    display: flex;
+    flex-direction: row;
+    padding: 20px 10px 0;
+}
+
+.col {
+    flex: 0 0 50%;
+
+    &:first-child {
+        padding-right: 10px;
+    }
+
+    &:last-child {
+        padding-left: 10px;
+    }
+}

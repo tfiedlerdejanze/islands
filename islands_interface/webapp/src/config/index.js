@@ -10,7 +10,7 @@ const environment = ((e) => {
         return prodEnv;
     } else if (e === 'dev') {
         return serverDevEnv;
-    } else { // local
+    } else {
         return localDevEnv;
     }
 })(__ENV__);

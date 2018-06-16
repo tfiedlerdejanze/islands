@@ -18,6 +18,7 @@ class OpponentBoard extends React.Component {
         this.state = {
             player: props.player,
             channel: props.channel,
+            turn: "player1",
             hits: [],
             misses: [],
             selected: null,
@@ -30,7 +31,6 @@ class OpponentBoard extends React.Component {
     componentDidMount() {
         const {
             channel,
-            player,
         } = this.state;
 
         channel.on("player_guessed_coordinate", response => {
@@ -54,7 +54,6 @@ class OpponentBoard extends React.Component {
         this.setState({
             hits: [ ...hits, {row: row, col: col} ]
         })
-
     }
 
     miss(row, col) {
@@ -76,7 +75,6 @@ class OpponentBoard extends React.Component {
             player2
         } = this.props;
 
-
         if (response.player === player.key) {
             const opponent = response.player === player1.key ? player2 : player1;
             if (response.result.win === "win") {
@@ -92,10 +90,18 @@ class OpponentBoard extends React.Component {
                 this.miss(response.row, response.col)
                 onStateChange("Miss - " + opponent.name + "'s turn.");
             }
+            this.setState({
+                turn: opponent.key
+            })
+        } else {
+            this.setState({
+                turn: player.key
+            })
         }
     }
 
     setSelected(x, y) {
+        if (this.state.turn !== this.state.player.key) return;
         this.setState({
             selected: { x, y }
         });
@@ -140,10 +146,16 @@ class OpponentBoard extends React.Component {
 
     renderCells(row) {
         const {
+            islands_set
+        } = this.props;
+
+        const {
             selected,
             misses,
             hits,
         } =  this.state;
+
+        const player_turn = this.state.turn === this.state.player.key;
 
         return boardRange.map((col) => {
             const isSelected = selected && !isMiss && !isHit && row === selected.x && col === selected.y;
@@ -157,8 +169,8 @@ class OpponentBoard extends React.Component {
                 [s['cell']]: true,
             });
 
-            const onClick = () => this.guessCoordinate(row, col);
-            const onMouseEnter = () => this.setSelected(row, col);
+            const onClick = islands_set && player_turn ? () => this.guessCoordinate(row, col) : null;
+            const onMouseEnter = islands_set && player_turn ? () => this.setSelected(row, col) : null;
 
             return (
                 <div key={col}

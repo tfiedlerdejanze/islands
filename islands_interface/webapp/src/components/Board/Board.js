@@ -27,7 +27,7 @@ class Board extends React.Component {
             channel: props.channel,
             selected_island: null,
             board: blankBoard,
-            selected: null,
+            selected: 'atoll',
             misses: [],
             hits: [],
         }
@@ -69,7 +69,6 @@ class Board extends React.Component {
         this.setState({
             hits: [ ...hits, {row: row, col: col} ]
         })
-
     }
 
     miss(row, col) {
@@ -88,23 +87,24 @@ class Board extends React.Component {
         const {
             onStateChange,
             player1,
-            player2
+            player2,
         } = this.props;
 
+        const opponent = [player1, player2].find((pl) => pl.key !== player.key);
+
         if (response.player !== player.key) {
-            const opponent = response.player === player1.key ? player2 : player1;
             if (response.result.win === "win") {
                 this.hit(response.row, response.col)
-                onStateChange("You won!");
+                onStateChange(`${opponent.name} won!`);
             } else if (response.result.island !== "none") {
                 this.hit(response.row, response.col)
-                onStateChange("Forested opponent's " + response.result.island + " island! Your turn.");
+                onStateChange("Opponent forested your " + response.result.island + " island! Your turn.");
             } else if (response.result.hit === true) {
                 this.hit(response.row, response.col)
                 onStateChange("Hit by " + opponent.name + ". Your turn.");
             } else {
                 this.miss(response.row, response.col)
-                onStateChange("Miss. Your turn.");
+                onStateChange(opponent.name + " missed. Your turn.");
             }
         }
     }
@@ -186,7 +186,6 @@ class Board extends React.Component {
                 </div>
             );
         })
-
     }
 
     renderCells(row) {
@@ -239,6 +238,7 @@ class Board extends React.Component {
 
         const {
             board,
+            player,
             islands,
             selected_island,
         } = this.state;

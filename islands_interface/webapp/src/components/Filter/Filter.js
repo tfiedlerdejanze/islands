@@ -38,11 +38,13 @@ class Filter extends React.Component {
                     })}
                 </ul>
 
-                <button disabled={positioned_island_count !== islands.length}
-                    onClick={onSetIslands}
-                >
-                    Set Islands
-                </button>
+                {positioned_island_count === islands.length &&
+                    <button className={s.submit}
+                        onClick={onSetIslands}
+                    >
+                        Set Islands
+                    </button>
+                }
             </div>
         );
     }

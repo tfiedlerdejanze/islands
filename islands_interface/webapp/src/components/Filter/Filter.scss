@@ -11,14 +11,29 @@
 
     &__item {
         display: inline-block;
+        font-size: .8em;
         margin-right: 6px;
         cursor: pointer;
-        padding: 3px 6px;
-        border: 1px solid gray;
+        padding: 2px 10px;
+        border: 1px solid gainsboro;
+
+        &:last-child {
+            margin-right: 0;
+        }
 
         &--selected {
-            color: blueviolet;
-            border-color: #333;
+            color: white;
+            background-color: #43adb8;
         }
     }
+}
+
+.submit {
+    margin-top: 8px;
+
+    border: 1px solid gainsboro;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 2px 10px;
 }

@@ -4,12 +4,12 @@ import {bindActionCreators} from 'redux';
 
 import Board from './../../components/Board/Board';
 import OpponentBoard from './../../components/Board/OpponentBoard';
-import Auth from './../../components/Auth/Auth';
 import * as actions from './actions';
 
 import s from './App.scss';
 import { SET_LOADING } from './actionTypes';
 import Game from '../Game/Game';
+import Auth from '../Auth/Auth';
 
 class App extends React.Component {
     constructor() {
